@@ -117,9 +117,9 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'student_management',
+            'NAME': 'shoppingcart',
             'USER':'root',
-            'PASSWORD':'liveandletlive',
+            'PASSWORD':'rajkumar',
             'HOST':'localhost',
             'PORT':'3306'
         }
