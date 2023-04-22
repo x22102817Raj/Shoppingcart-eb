@@ -1,0 +1,58 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+    <div class="container">
+      {% comment %} <a class="navbar-brand" href="#">Shopping Cart</a> {% endcomment %}
+
+        <img src="{% static 'assets/1.png' %}"  class="w-25" alt="logo" >
+    
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse " id="navbarNavDropdown">
+        <div class="ms-auto">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                  <a class="nav-link   {{home_page}}" aria-current="page" href="{% url 'home' %}"> <i class="fa fa-home"></i> Home</a>
+                </li>
+              
+                {% if request.user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link   {{login_page}}" aria-current="page" href="{% url 'login' %}"><i class="fa fa-user"></i> {{request.user}}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link   {{logout_page}}" href="{% url 'logout' %}"><i class="fa fa-sign-in"></i> Logout</a>
+                    </li>
+                {% else %}
+                <li class="nav-item ">
+                  <a class="nav-link   {{register_page}}" href="{% url 'register' %}"><i class="fa fa-users"></i> Resgister</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link   {{login_page}}" href="{% url 'login' %}"><i class="fa fa-sign-in"></i> Login</a>
+                </li>
+                {% endif %}
+                <li class="nav-item">
+                  <a class="nav-link   {{Collections_page}}" href="{% url 'Collections' %}"> <i class="fa fa-cubes"></i> Collections</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link   {{cart_page}}" href="{% url 'cart' %}"> <i class="fa fa-shopping-cart"></i> Cart</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link   {{fav_page}}" href="{% url 'fav_view_page' %}"> <i class="fa fa-heart"></i> Favourites</a>
+                </li>
+                {% comment %} <li class="nav-item dropdown"> {% endcomment %}
+                  {% comment %} <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                   User
+                  </a> {% endcomment %}
+                  {% comment %} <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <li><a class="dropdown-item" href="#">Login</a></li>
+                    <li><a class="dropdown-item" href="#">Resgister</a></li>
+                    <li><a class="dropdown-item" href="#">Something else here</a></li>
+                  </ul>
+                </li>
+              </ul> {% endcomment %}
+        </div>
+
+    
+      </div>
+    </div>
+  </nav>
