@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'shop',
+
 ]
 
 MIDDLEWARE = [
@@ -117,7 +118,7 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'student_management',
+            'NAME': 'Shoppingcart',
             'USER':'root',
             'PASSWORD':'liveandletlive',
             'HOST':'localhost',

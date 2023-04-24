@@ -21,6 +21,7 @@ urlpatterns = [
     path('Collections/<str:cname>/<str:pname>',views.ProductDetails, name="Product_details"),
     path('addtocart',views.add_to_cart, name="addtocart"),
     path('create_checkout_session', views.create_checkout_session, name='checkout'),
+    path('loadsuccess', views.loadsuccess,name='loadsuccess'),
     path('success', views.success,name='success'),
     path('cancel', views.cancel,name='cancel'),
     path('webhooks/stripe/',views.webhook,name="webhook")

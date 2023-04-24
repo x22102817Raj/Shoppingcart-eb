@@ -8,7 +8,8 @@ import json
 import stripe
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
-
+from .module.discount import getdiscount
+from .module.user import checkloginpassword
 
 stripe.api_key = "sk_test_51JVtE7SAdR4FPiJKGBwTOGVhLStluGU8pBujUJ9J82VEnjQYzYrVKy4aHfoVWGmcyCVpmoIBedMiRvhMLu2dzT2s007Jb4bAJU"
 YOUR_DOMAIN = 'http://127.0.0.1:8000'
@@ -26,15 +27,20 @@ def login_page(request):
         if request.method == "POST":
             name = request.POST.get('username')
             password= request.POST.get('password')
+            canlogin = checkloginpassword(password)
             print(name,password);
-            user = authenticate(request,username=name,password=password)
-            print(name,password,user);
-            if user is not None:
-                login(request,user)
-                return redirect("/Collections")
+            if canlogin == True:
+                user = authenticate(request,username=name,password=password)
+                print(name,password,user);
+                if user is not None:
+                    login(request,user)
+                    return redirect("/Collections")
+                else:
+                    messages.warning(request,"Invalid Credentials")
+                    return redirect("login")
             else:
-                messages.warning(request,"Invalid Credentials")
-                return redirect("login")
+                 messages.warning(request,canlogin)
+                 return redirect("login")
      return render(request,"shop/login.html",{'login_page': 'active'})
 
 def logout_page(request):
@@ -48,7 +54,16 @@ def logout_page(request):
 def cart_page(request):
     if request.user.is_authenticated:
         cart = Cart.objects.filter(user=request.user)
-        return render(request,"shop/cart.html",{"cart":cart,'cart_page': 'active'})
+        totalamount = 0
+        for item in cart :
+         
+            totalamount =totalamount + item.total_cost
+        discount = 15;
+        discountamount = getdiscount(discount, totalamount)
+        Total = totalamount - discountamount
+        print('totalamount',totalamount,'Total',Total,'discountamount',discountamount);
+            
+        return render(request,"shop/cart.html",{"cart":cart,"Discount":discountamount,"Total":Total,'cart_page': 'active'})
     else:
         messages.warning(request,"Please Login" )
         return redirect("/")
@@ -121,10 +136,19 @@ def register(request):
     form= CustomUserForm();
     if request.method == "POST":
        form= CustomUserForm(request.POST)
-       if form.is_valid():
-           form.save()
-           messages.success(request,"Account Created Successfully")
-           return redirect("/login")
+       
+      
+       if form.is_valid() :
+           password = form.cleaned_data.get("password1")
+           print('form',password)
+           canregister = checkloginpassword(password)
+           if canregister == True:
+             form.save()
+             messages.success(request,"Account Created Successfully")
+             return redirect("/login")
+           else:
+             messages.error(request,canregister)
+             return redirect("/register")
     return render(request,"shop/register.html",{"form":form,"register_page":"active"})
 
 def Collections(request):
@@ -154,26 +178,30 @@ def ProductDetails(request,cname,pname):
 
 
 def checkout_page(request):
-     return render(request,'shop/checkout.html')
+     return render(request,"shop/success.html")
 
 #success view
 def success(request):
- return render(request,'shop/success.html')
+    print("Success",request.user.id)
+    cart = Cart.objects.filter(user_id=request.user.id);
+    if cart:
+        cart.delete()
+    # order=Order(email=" ",paid="True",amount=0,description=" ")
+    # order.save()
+    return render(request,"success.html")
+    # return render(request,'shop/success.html')
 
+def loadsuccess(request):
+    return redirect("success")
  #cancel view
 def cancel(request):
  return render(request,'shop/cancel.html')    
 
 @csrf_exempt
 def create_checkout_session(request):
-    
-  
         if request.user.is_authenticated:
             data= json.load(request);
             Total=data["Total"]
-            order=Order(email=" ",paid="False",amount=0,description=" ")
-            order.save()
-
             session = stripe.checkout.Session.create(
             client_reference_id=request.user.id if request.user.is_authenticated else None,
             payment_method_types=['card'],
@@ -187,18 +215,13 @@ def create_checkout_session(request):
             },
             'quantity': 1,
             }],
-            metadata={
-                "order_id":order.id
-            },
+         
             mode='payment',
             success_url="http://http://127.0.0.1:8000/success",
             cancel_url="http://http://127.0.0.1:8000/cancel", 
             )
 
             print(session)
-            #ID=order.id
-            #order= Order.objects.filter(id=ID).update(email=customer_email,amount=price,paid=True,description=sessionID)
-            #order.save()
             return JsonResponse({'id': session.id})
         else:
            return JsonResponse({"status":"login to add cart"}, status=200)
